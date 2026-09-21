@@ -1,98 +1,134 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { ReportCard } from "../components/ReportCard";
+import { TechnicianCard } from "../components/TechnicianCard";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function App() {
+  const [isResolved, setIsResolved] = useState(false);
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+  const reportData = {
+    title: "Cortocircuito en Laboratorio BS02",
+    location: "Bloque Humberto Jaimes - Sala BS02",
+    description:
+      "Tres tomas de corriente en la pared posterior están echando chispas al conectar los equipos.",
+    imageUrl: "https://picsum.photos/id/210/600/400",
+    date: "Lunes 07/09/2026",
+  };
+
+  const technicianData = {
+    name: "Carlos Mendoza",
+    role: "Técnico Electricista",
+    phone: "+57 312 456 7890",
+    avatarUrl: "https://i.pravatar.cc/150?img=12",
+  };
+
+  const handleToggleStatus = () => {
+    setIsResolved(!isResolved);
+  };
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>CampusService Mobile</Text>
+          <Text style={styles.headerSubtitle}>
+            Gestión de Reportes - ISER Pamplona
+          </Text>
+        </View>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+        <ReportCard
+          title={reportData.title}
+          location={reportData.location}
+          description={reportData.description}
+          imageUrl={reportData.imageUrl}
+          date={reportData.date}
+        />
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <TechnicianCard
+          name={technicianData.name}
+          role={technicianData.role}
+          phone={technicianData.phone}
+          avatarUrl={technicianData.avatarUrl}
+          isAssigned={isResolved}
+        />
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <View
+          style={[
+            styles.statusBox,
+            isResolved ? styles.bgSuccess : styles.bgDanger,
+          ]}
+        >
+          <Text style={styles.statusText}>
+            Estado Actual: {isResolved ? "🟢 RESUELTO" : "🔴 PENDIENTE"}
+          </Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          <TouchableOpacity style={styles.button} onPress={handleToggleStatus}>
+            <Text style={styles.buttonText}>Cambiar Estado del Reporte</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: "#f8fafc",
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+  scrollContent: {
+    padding: 20,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  header: {
+    marginBottom: 20,
+    marginTop: 10,
   },
-  title: {
-    textAlign: 'center',
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#0f172a",
   },
-  code: {
-    textTransform: 'uppercase',
+  headerSubtitle: {
+    fontSize: 13,
+    color: "#64748b",
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  statusBox: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 10,
+    borderWidth: 1,
+  },
+  bgDanger: {
+    backgroundColor: "#fef2f2",
+    borderColor: "#fca5a5",
+  },
+  bgSuccess: {
+    backgroundColor: "#f0fdf4",
+    borderColor: "#86efac",
+  },
+  statusText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#0f172a",
+    marginBottom: 12,
+  },
+  button: {
+    backgroundColor: "#0284c7",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
